@@ -102,7 +102,6 @@ def question_keyboard(q):
     for opt in opts:
         builder.button(text=opt, callback_data=f"guess:{q['id']}:{opt}")
     builder.adjust(2)
-    builder.row(InlineKeyboardButton(text="➡️ Next Photo", callback_data=f"next:{q['id']}"))
     return builder.as_markup()
 
 
@@ -281,25 +280,10 @@ async def on_guess(callback: CallbackQuery):
         text = f"❌ <b>Wrong answer!</b>\nCorrect answer: <b>{html.escape(answer)}</b>\n\nNext photo try karein."
     await callback.answer("Correct!" if choice.casefold() == answer.casefold() else "Wrong answer")
     try:
-        await callback.message.edit_caption(caption=text, reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="➡️ Next Photo", callback_data=f"next:{qid}")],
-            [InlineKeyboardButton(text="🏆 Leaderboard", callback_data="leaderboard")]
-        ]), parse_mode="HTML")
+        # No Next Photo button: users can start another round from the main menu.
+        await callback.message.edit_caption(caption=text, reply_markup=None, parse_mode="HTML")
     except Exception as exc:
         log.info("Could not edit answer caption: %s", exc)
-
-
-async def on_next(callback: CallbackQuery):
-    try:
-        old_id = int(callback.data.split(":", 1)[1])
-    except (IndexError, ValueError):
-        old_id = None
-    q = get_question(old_id)
-    if not q:
-        await callback.answer("Abhi aur photos available nahi hain.", show_alert=True)
-        return
-    await callback.answer()
-    await send_question(callback.message, q, delete_old=True)
 
 
 async def on_leaderboard(callback: CallbackQuery):
@@ -380,7 +364,6 @@ async def main():
     dp.callback_query.register(on_checksub, F.data == "checksub")
     dp.callback_query.register(on_play, F.data == "play")
     dp.callback_query.register(on_guess, F.data.startswith("guess:"))
-    dp.callback_query.register(on_next, F.data.startswith("next:"))
     dp.callback_query.register(on_leaderboard, F.data == "leaderboard")
     dp.callback_query.register(on_how, F.data == "how")
     poster_task = asyncio.create_task(auto_poster(bot))

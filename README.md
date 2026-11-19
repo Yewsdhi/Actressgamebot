@@ -62,7 +62,3 @@ python bot.py
 - Telegram must be able to access the image URL returned by Wikimedia Commons.
 - The first auto-post happens immediately after worker startup; later posts follow the configured interval.
 - Only one worker should run to avoid duplicate posts.
-
-# 🚀 Deploy on Heroku
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/Yewsdhi/Actressgamebot)
