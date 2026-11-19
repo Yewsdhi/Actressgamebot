@@ -14,7 +14,7 @@ A Telegram photo-quiz bot. Players identify the actress shown in a photo, earn p
 
 ## Deploy to Heroku
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://www.heroku.com/deploy/?template=https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://www.heroku.com/deploy/?template=https://github.com/Yewsdhi/Actressgamebot)
 
 **Before using the button:** replace `YOUR_GITHUB_USERNAME` and `YOUR_REPOSITORY` in the badge URL above and in `app.json` with your actual public GitHub repository details. Commit and push those changes.
 
