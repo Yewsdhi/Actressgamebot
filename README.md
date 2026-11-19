@@ -2,7 +2,7 @@
 
 ## 🚀 Deploy on Heroku
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/Yewsdhi/Actressgamebot)
 
 Upload this folder to GitHub first, then replace `YOUR_GITHUB_USERNAME` and `YOUR_REPOSITORY` in this README and `app.json` with your real repository details.
 
