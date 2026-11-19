@@ -16,7 +16,7 @@ This project runs as a background **worker**, not a web server.
 5. Deploy. `app.json` requests one worker using Heroku's `eco` dyno size.
 6. If needed, open **Heroku Dashboard → app → Resources**, set worker quantity to `1`, and save.
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://www.heroku.com/deploy/?template=https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://www.heroku.com/deploy/?template=https://github.com/Yewsdhi/Actressgamebot)
 
 **Important:** The Deploy button remains a template until the GitHub placeholders are replaced. Eco dyno scaling requires an eligible Eco subscription/account. A project file cannot activate or purchase the subscription; Heroku must permit dyno scaling on the account.
 
