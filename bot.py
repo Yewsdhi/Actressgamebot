@@ -7,6 +7,7 @@ from pathlib import Path
 import random
 import sqlite3
 import time
+import sys
 from contextlib import closing
 from urllib.parse import quote
 
@@ -370,6 +371,9 @@ async def on_help_message(message: Message):
         "❓ <b>/help</b> — Ye help guide dekhein\n"
         "🏆 <b>/leaderboard</b> — Top 10 players dekhein\n"
         "📊 <b>/stats</b> — Admin photo/player statistics\n"
+        "♻️ <b>/restart</b> — Admin: worker restart karein\n"
+        "📢 <b>/broadcast</b> — Admin: replied message sabhi bot users ko bhejein\n"
+        "📢 <b>/broadcastgroups</b> — Admin: replied message registered groups ko bhejein\n"
         "👥 <b>/registergroup</b> — Is group mein har 15 minute auto-post enable karein (group mein use karein)\n\n"
         "<b>How to play</b>\n"
         "1. Play Game dabayein.\n2. Actress ki photo dekhein.\n"
@@ -390,7 +394,10 @@ async def on_help_button(callback: CallbackQuery):
         "🆘 <b>HELP CENTER</b>\n\n"
         "🎮 Play Game se quiz shuru karein. Photo dekhkar 4 options mein se ek choose karein. Sahi jawab par +1 point milta hai.\n\n"
         "👥 <b>/registergroup</b> — Is group mein har 15 minute auto-post enable karein. Ye command usi group mein bhejein jahan posts chahiye.\n"
-        "❓ <b>/help</b> — Ye guide kabhi bhi khol sakte hain.",
+        "❓ <b>/help</b> — Ye guide kabhi bhi khol sakte hain.\n"
+        "♻️ <b>/restart</b> — Admin-only worker restart.\n"
+        "📢 <b>/broadcast</b> — Admin: reply karke sabhi bot users ko message bhejein.\n"
+        "📢 <b>/broadcastgroups</b> — Admin: reply karke registered groups ko message bhejein.",
         parse_mode="HTML", reply_markup=main_keyboard())
 
 
@@ -414,6 +421,64 @@ async def add_photo(message: Message):
         return
     add_question(message.photo[-1].file_id, parts[0], parts)
     await message.reply(f"✅ Photo added! Correct answer: <b>{html.escape(parts[0])}</b>", parse_mode="HTML")
+
+
+async def broadcast_users(message: Message, bot: Bot):
+    """Copy the message replied to by an admin to all users who started the bot."""
+    if not message.from_user or message.from_user.id not in ADMIN_IDS:
+        await message.reply("⛔ Admin only.")
+        return
+    source = message.reply_to_message
+    if not source:
+        await message.reply("Pehle jis message ko broadcast karna hai use bot ko bhejein, phir us message par reply karke /broadcast likhein.")
+        return
+    with closing(db()) as con:
+        targets = [row[0] for row in con.execute("SELECT user_id FROM bot_users").fetchall()]
+    sent = failed = 0
+    status = await message.reply(f"📢 Broadcast shuru: {len(targets)} users...")
+    for user_id in targets:
+        try:
+            await bot.copy_message(chat_id=user_id, from_chat_id=source.chat.id, message_id=source.message_id)
+            sent += 1
+        except Exception as exc:
+            failed += 1
+            log.info("Broadcast to user=%s failed: %s", user_id, exc)
+        await asyncio.sleep(0.04)
+    await status.edit_text(f"✅ <b>Broadcast complete</b>\n\n👥 Total: {len(targets)}\n📨 Sent: {sent}\n❌ Failed: {failed}", parse_mode="HTML")
+
+
+async def broadcast_groups(message: Message, bot: Bot):
+    """Copy the replied message to every registered auto-post group."""
+    if not message.from_user or message.from_user.id not in ADMIN_IDS:
+        await message.reply("⛔ Admin only.")
+        return
+    source = message.reply_to_message
+    if not source:
+        await message.reply("Pehle message bhejein, phir us par reply karke /broadcastgroups likhein.")
+        return
+    with closing(db()) as con:
+        targets = [row[0] for row in con.execute("SELECT chat_id FROM auto_post_groups").fetchall()]
+    sent = failed = 0
+    status = await message.reply(f"📢 Group broadcast shuru: {len(targets)} groups...")
+    for chat_id in targets:
+        try:
+            await bot.copy_message(chat_id=chat_id, from_chat_id=source.chat.id, message_id=source.message_id)
+            sent += 1
+        except Exception as exc:
+            failed += 1
+            log.info("Broadcast to group=%s failed: %s", chat_id, exc)
+        await asyncio.sleep(0.05)
+    await status.edit_text(f"✅ <b>Group broadcast complete</b>\n\n👥 Total groups: {len(targets)}\n📨 Sent: {sent}\n❌ Failed: {failed}", parse_mode="HTML")
+
+
+async def restart_command(message: Message):
+    """Restart the Heroku worker process; admin-only."""
+    if not message.from_user or message.from_user.id not in ADMIN_IDS:
+        await message.reply("⛔ Admin only.")
+        return
+    await message.reply("♻️ Bot worker restart ho raha hai...")
+    await asyncio.sleep(1)
+    os.execv(sys.executable, [sys.executable] + sys.argv)
 
 
 async def chat_id_command(message: Message):
@@ -572,6 +637,9 @@ async def main():
     dp.message.register(chat_id_command, Command("id"))
     dp.message.register(register_group_command, Command("registergroup"))
     dp.message.register(stats, Command("stats"))
+    dp.message.register(restart_command, Command("restart"))
+    dp.message.register(broadcast_users, Command("broadcast"))
+    dp.message.register(broadcast_groups, Command("broadcastgroups"))
     dp.message.register(on_help_message, Command("help"))
     dp.message.register(on_leaderboard_message, Command("leaderboard"))
     dp.callback_query.register(on_play, F.data == "play")
@@ -584,6 +652,9 @@ async def main():
         BotCommand(command="help", description="Help and game guide"),
         BotCommand(command="leaderboard", description="Top 10 players"),
         BotCommand(command="stats", description="Admin statistics"),
+        BotCommand(command="restart", description="Admin: restart bot worker"),
+        BotCommand(command="broadcast", description="Admin: broadcast to all bot users"),
+        BotCommand(command="broadcastgroups", description="Admin: broadcast to registered groups"),
         BotCommand(command="registergroup", description="Enable auto-posts in this group"),
     ])
     poster_task = asyncio.create_task(auto_poster(bot))
