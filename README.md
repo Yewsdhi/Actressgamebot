@@ -1,5 +1,12 @@
 # Actress Photo Guess Bot — Full Fix
 
+## 🚀 Deploy on Heroku
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY)
+
+Upload this folder to GitHub first, then replace `YOUR_GITHUB_USERNAME` and `YOUR_REPOSITORY` in this README and `app.json` with your real repository details.
+
+
 Telegram actress photo quiz with 4 choices, points, leaderboard, channel buttons, optional force-subscribe, and automatic channel posts every 15 minutes.
 
 ## Automatic photos: important limitation
@@ -19,6 +26,7 @@ The bot can automatically search **Wikimedia Commons** for images of a built-in 
 | `AUTO_POST_ENABLED` | `true` |
 | `AUTO_POST_CHAT_ID` | `@YourPublicChannel` or numeric channel ID |
 | `AUTO_POST_INTERVAL_MINUTES` | `15` |
+| `SUPPORT_GROUP` | Support group username or invite URL |
 | `SUPPORT_CHANNEL` | `@YourSupportChannel` or full `https://t.me/...` URL |
 | `UPDATE_CHANNEL` | `@YourUpdateChannel` or full `https://t.me/...` URL |
 | `FORCE_SUB_CHANNEL` | Optional; channel username/ID required before playing, blank disables |
@@ -29,7 +37,9 @@ The bot can automatically search **Wikimedia Commons** for images of a built-in 
 
 ## Commands
 
-- `/start` — open the game
+- `/start` — open the game and main menu
+- `/help` — detailed help and admin photo-upload guide
+- `/leaderboard` — top 10 players
 - `/stats` — admin-only photo/player count
 - Add a photo: send a photo with this caption:
 
@@ -60,6 +70,5 @@ python bot.py
 
 - Automatic posting runs inside the worker process and retries on the next 15-minute cycle after errors.
 - Telegram must be able to access the image URL returned by Wikimedia Commons.
-- The first auto-post happens immediately after worker startup; later posts follow the configured interval.
+- The first auto-post happens immediately after worker startup; later posts follow the configured interval. Configure `SUPPORT_GROUP`, `SUPPORT_CHANNEL`, and `UPDATE_CHANNEL` to show their buttons in the start menu.
 - Only one worker should run to avoid duplicate posts.
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/Yewsdhi/Actressgamebot)

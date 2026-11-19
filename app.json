@@ -1,6 +1,6 @@
 {
   "name": "Actress Photo Guess Bot",
-  "description": "Telegram Bollywood actress photo guessing game with points and leaderboard.",
+  "description": "Telegram actress photo quiz with Help menu, support group, support channel, update channel and automatic 15-minute posts.",
   "keywords": [
     "telegram",
     "bot",
@@ -22,6 +22,34 @@
       "description": "SQLite database filename; Heroku filesystem is temporary.",
       "required": true,
       "value": "actress_game.db"
+    },
+    "AUTO_POST_ENABLED": {
+      "description": "Enable automatic channel quiz posts.",
+      "value": "true"
+    },
+    "AUTO_POST_CHAT_ID": {
+      "description": "Public channel @username or numeric channel ID where photos are posted.",
+      "required": false
+    },
+    "AUTO_POST_INTERVAL_MINUTES": {
+      "description": "Minutes between automatic channel posts.",
+      "value": "15"
+    },
+    "SUPPORT_GROUP": {
+      "description": "Support Telegram group username or invite URL.",
+      "required": false
+    },
+    "SUPPORT_CHANNEL": {
+      "description": "Support Telegram channel username or URL.",
+      "required": false
+    },
+    "UPDATE_CHANNEL": {
+      "description": "Update/news channel username or URL.",
+      "required": false
+    },
+    "FORCE_SUB_CHANNEL": {
+      "description": "Optional channel users must join before playing.",
+      "required": false
     }
   },
   "formation": {

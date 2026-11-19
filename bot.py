@@ -11,7 +11,7 @@ from urllib.parse import quote
 import aiohttp
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, CommandStart
-from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, BotCommand
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from dotenv import load_dotenv
 
@@ -23,6 +23,7 @@ AUTO_POST_CHAT_ID = os.getenv("AUTO_POST_CHAT_ID", "").strip()
 AUTO_POST_INTERVAL_MINUTES = max(1, int(os.getenv("AUTO_POST_INTERVAL_MINUTES", "15")))
 AUTO_POST_ENABLED = os.getenv("AUTO_POST_ENABLED", "true").lower() in {"1", "true", "yes", "on"}
 SUPPORT_CHANNEL = os.getenv("SUPPORT_CHANNEL", "").strip()
+SUPPORT_GROUP = os.getenv("SUPPORT_GROUP", "").strip()
 UPDATE_CHANNEL = os.getenv("UPDATE_CHANNEL", "").strip()
 FORCE_SUB_CHANNEL = os.getenv("FORCE_SUB_CHANNEL", "").strip()
 
@@ -105,19 +106,28 @@ def question_keyboard(q):
     return builder.as_markup()
 
 
+def telegram_url(value: str):
+    value = (value or "").strip()
+    if not value:
+        return None
+    if value.startswith(("https://", "http://")):
+        return value
+    return f"https://t.me/{value.lstrip('@')}"
+
+
 def main_keyboard():
     rows = [[InlineKeyboardButton(text="🎮 Play Game", callback_data="play")],
             [InlineKeyboardButton(text="🏆 Leaderboard", callback_data="leaderboard"),
-             InlineKeyboardButton(text="ℹ️ How to Play", callback_data="how")]]
+             InlineKeyboardButton(text="❓ Help", callback_data="help")]]
     links = []
+    if SUPPORT_GROUP:
+        links.append(InlineKeyboardButton(text="👥 Support Group", url=telegram_url(SUPPORT_GROUP)))
     if SUPPORT_CHANNEL:
-        url = SUPPORT_CHANNEL if SUPPORT_CHANNEL.startswith("http") else f"https://t.me/{SUPPORT_CHANNEL.lstrip('@')}"
-        links.append(InlineKeyboardButton(text="🆘 Support", url=url))
+        links.append(InlineKeyboardButton(text="🆘 Support", url=telegram_url(SUPPORT_CHANNEL)))
     if UPDATE_CHANNEL:
-        url = UPDATE_CHANNEL if UPDATE_CHANNEL.startswith("http") else f"https://t.me/{UPDATE_CHANNEL.lstrip('@')}"
-        links.append(InlineKeyboardButton(text="📢 Updates", url=url))
+        links.append(InlineKeyboardButton(text="📢 Update Channel", url=telegram_url(UPDATE_CHANNEL)))
     if links:
-        rows.append(links)
+        rows.extend([links[i:i+2] for i in range(0, len(links), 2)])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
@@ -230,7 +240,7 @@ async def start(message: Message, bot: Bot):
         await message.answer("Game khelne ke liye pehle hamara channel join karein.", reply_markup=kb)
         return
     await message.answer(
-        "✨ <b>ACTRESS PHOTO GUESS</b>\n\nActress ki photo dekho aur naam guess karo.\nSahi jawab par +1 point milega!\n\nHar 15 minute channel par naya photo quiz auto-post hota hai.",
+        "🌟 <b>WELCOME TO ACTRESS PHOTO GUESS!</b>\n\n🎭 Actress ki photo pehchano aur 4 options mein se sahi naam chuno.\n🏆 Har sahi jawab par +1 point.\n📊 Leaderboard par apni ranking dekho.\n⏰ Channel par har 15 minute auto quiz post hota hai.\n\n👇 <b>Game shuru karne ke liye Play Game dabayein.</b>\n/help — commands aur game guide",
         reply_markup=main_keyboard(), parse_mode="HTML")
 
 
@@ -298,6 +308,35 @@ async def on_how(callback: CallbackQuery):
         parse_mode="HTML", reply_markup=main_keyboard())
 
 
+async def on_help_message(message: Message):
+    await message.answer(
+        "🆘 <b>ACTRESS QUIZ — HELP CENTER</b>\n\n"
+        "🎮 <b>/start</b> — Main menu aur game open karein\n"
+        "❓ <b>/help</b> — Ye help guide dekhein\n"
+        "🏆 <b>/leaderboard</b> — Top 10 players dekhein\n"
+        "📊 <b>/stats</b> — Admin photo/player statistics\n\n"
+        "<b>How to play</b>\n"
+        "1. Play Game dabayein.\n2. Actress ki photo dekhein.\n"
+        "3. 4 options mein se sahi naam choose karein.\n"
+        "4. Sahi jawab par +1 point milega.\n\n"
+        "<b>Admin photo upload</b>\n"
+        "Photo bhejein aur caption mein likhein:\n"
+        "<code>/add Correct Name | Wrong 1 | Wrong 2 | Wrong 3</code>\n\n"
+        "Auto-post ke liye bot ko channel admin banayein aur AUTO_POST_CHAT_ID set karein.",
+        parse_mode="HTML", reply_markup=main_keyboard())
+
+
+async def on_help_button(callback: CallbackQuery):
+    await callback.answer()
+    await callback.message.answer(
+        "🆘 <b>HELP CENTER</b>\n\nPlay Game se quiz shuru karein. Photo dekhkar 4 options mein se ek choose karein. Sahi jawab par +1 point milta hai. /help command se ye guide kabhi bhi khol sakte hain.",
+        parse_mode="HTML", reply_markup=main_keyboard())
+
+
+async def on_leaderboard_message(message: Message):
+    await message.answer(leaderboard_text(), parse_mode="HTML", reply_markup=main_keyboard())
+
+
 async def add_photo(message: Message):
     if not message.from_user or message.from_user.id not in ADMIN_IDS:
         await message.reply("⛔ Ye command sirf bot admin use kar sakta hai.")
@@ -361,11 +400,20 @@ async def main():
     dp.message.register(start, CommandStart())
     dp.message.register(add_photo, F.photo)
     dp.message.register(stats, Command("stats"))
+    dp.message.register(on_help_message, Command("help"))
+    dp.message.register(on_leaderboard_message, Command("leaderboard"))
     dp.callback_query.register(on_checksub, F.data == "checksub")
     dp.callback_query.register(on_play, F.data == "play")
     dp.callback_query.register(on_guess, F.data.startswith("guess:"))
     dp.callback_query.register(on_leaderboard, F.data == "leaderboard")
     dp.callback_query.register(on_how, F.data == "how")
+    dp.callback_query.register(on_help_button, F.data == "help")
+    await bot.set_my_commands([
+        BotCommand(command="start", description="Open the main menu"),
+        BotCommand(command="help", description="Help and game guide"),
+        BotCommand(command="leaderboard", description="Top 10 players"),
+        BotCommand(command="stats", description="Admin statistics"),
+    ])
     poster_task = asyncio.create_task(auto_poster(bot))
     log.info("Actress Photo Guess Bot started; auto-post interval=%s minutes", AUTO_POST_INTERVAL_MINUTES)
     try:
