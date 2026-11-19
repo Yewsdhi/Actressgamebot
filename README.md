@@ -7,7 +7,20 @@
 Upload this folder to GitHub first, then replace `YOUR_GITHUB_USERNAME` and `YOUR_REPOSITORY` in this README and `app.json` with your real repository details.
 
 
-Telegram actress photo quiz with 4 choices, points, leaderboard, a custom start poster, optional support/update links, and automatic group posts every 15 minutes. Force-subscribe has been removed.
+Premium Black & Gold actress photo quiz with 4 choices, global leaderboard, daily challenge, Bollywood/South Indian categories, hints, player levels, profiles, streaks, achievements, custom start poster, optional support/update links, and automatic group posts every 15 minutes. Force-subscribe has been removed.
+
+## Premium game features
+
+- **Daily Challenge:** one daily question per player; a wrong answer uses that day's attempt.
+- **Global Leaderboard:** top 10 players by total points.
+- **Player Levels:** Beginner, Pro, Expert, Superstar and Legend based on points.
+- **Hint System:** reveals the first letter and answer length.
+- **Actress Categories:** Bollywood, South Indian and All Categories. The built-in category mapping is a curated starter list; other names are treated as Bollywood.
+- **Winning Streak:** consecutive active-day streak and personal best.
+- **My Profile:** points, global rank, level, streak and unlocked badges.
+- **Achievements:** First Win, Quiz Pro (10 points), Superstar (50), Legend (100) and Hot Streak (5-day streak).
+
+The new player stats, daily attempts and achievement tables are created automatically when the existing SQLite database starts. Existing questions, points, users, groups and answered-question records are preserved.
 
 ## Automatic photos: important limitation
 
@@ -22,7 +35,7 @@ The bot can automatically search **Wikimedia Commons** for images of a built-in 
 |---|---|
 | `BOT_TOKEN` | Token from `@BotFather` |
 | `ADMIN_IDS` | Your numeric Telegram user ID; comma-separated for multiple admins. This ID receives new-user notifications. |
-| `DB_PATH` | `actress_game.db` |
+| `DB_PATH` | `actress_game.db` (SQLite file; Heroku local disk is temporary) |
 | `AUTO_POST_ENABLED` | `true` |
 | `AUTO_POST_INTERVAL_MINUTES` | `15` |
 | `SUPPORT_GROUP` | Support group username or invite URL |

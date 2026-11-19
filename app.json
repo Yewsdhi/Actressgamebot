@@ -1,0 +1,66 @@
+{
+  "name": "Actress Photo Guess Bot",
+  "description": "Premium Black & Gold Telegram actress quiz with daily challenges, categories, hints, player profiles, levels, streaks, achievements and global leaderboard.",
+  "keywords": [
+    "telegram",
+    "bot",
+    "game",
+    "quiz",
+    "bollywood"
+  ],
+  "repository": "https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY",
+  "env": {
+    "BOT_TOKEN": {
+      "description": "Telegram bot token from @BotFather",
+      "required": true
+    },
+    "ADMIN_IDS": {
+      "description": "Numeric Telegram user ID; comma-separated IDs are supported.",
+      "required": true
+    },
+    "DB_PATH": {
+      "description": "SQLite database filename; Heroku filesystem is temporary.",
+      "required": true,
+      "value": "actress_game.db"
+    },
+    "AUTO_POST_ENABLED": {
+      "description": "Enable automatic channel quiz posts.",
+      "value": "true"
+    },
+    "AUTO_POST_CHAT_ID": {
+      "description": "Public channel @username or numeric channel ID where photos are posted.",
+      "required": false
+    },
+    "AUTO_POST_INTERVAL_MINUTES": {
+      "description": "Minutes between automatic channel posts.",
+      "value": "15"
+    },
+    "SUPPORT_GROUP": {
+      "description": "Support Telegram group username or invite URL.",
+      "required": false
+    },
+    "SUPPORT_CHANNEL": {
+      "description": "Support Telegram channel username or URL.",
+      "required": false
+    },
+    "UPDATE_CHANNEL": {
+      "description": "Update/news channel username or URL.",
+      "required": false
+    },
+    "FORCE_SUB_CHANNEL": {
+      "description": "Optional channel users must join before playing.",
+      "required": false
+    }
+  },
+  "formation": {
+    "worker": {
+      "quantity": 1,
+      "size": "eco"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
