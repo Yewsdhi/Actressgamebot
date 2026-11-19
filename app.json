@@ -8,21 +8,18 @@
     "quiz",
     "bollywood"
   ],
-  "website": "https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY",
   "repository": "https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY",
-  "success_url": "/",
   "env": {
     "BOT_TOKEN": {
       "description": "Telegram bot token from @BotFather",
       "required": true
     },
     "ADMIN_IDS": {
-      "description": "Comma-separated numeric Telegram user IDs allowed to add questions and view stats",
-      "required": true,
-      "value": "123456789"
+      "description": "Numeric Telegram user ID; comma-separated IDs are supported.",
+      "required": true
     },
     "DB_PATH": {
-      "description": "SQLite database file path. Note: Heroku filesystem is ephemeral.",
+      "description": "SQLite database filename; Heroku filesystem is temporary.",
       "required": true,
       "value": "actress_game.db"
     }

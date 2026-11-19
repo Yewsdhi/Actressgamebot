@@ -1,76 +1,51 @@
 # Actress Photo Guess Bot
 
-A Telegram photo-quiz bot. Players identify the actress shown in a photo, earn points, and compete on a leaderboard.
+Telegram Bollywood actress photo-guessing game with multiple-choice answers, points, and a top-10 leaderboard.
 
-## Features
+## Heroku deployment
 
-- Photo-based multiple-choice quiz
-- Random question selection
-- +1 point for a correct answer
-- Top 10 leaderboard
-- Admin-only photo upload command
-- SQLite database (no external database required)
-- Heroku Deploy Button configuration (`app.json`)
+This project runs as a background **worker**, not a web server.
 
-## Deploy to Heroku
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://www.heroku.com/deploy/?template=https://github.com/Yewsdhi/Actressgamebot)
-
-**Before using the button:** replace `YOUR_GITHUB_USERNAME` and `YOUR_REPOSITORY` in the badge URL above and in `app.json` with your actual public GitHub repository details. Commit and push those changes.
-
-1. Upload all project files to a **public GitHub repository**.
-2. Replace the placeholder GitHub username/repository in:
-   - `README.md` deploy-button URL
-   - `app.json` `website` and `repository` values
-3. Open your GitHub repository's README and click **Deploy to Heroku**.
-4. On Heroku's app creation page, choose an app name and set:
+1. Push this project to a **public GitHub repository**.
+2. Replace `YOUR_GITHUB_USERNAME` and `YOUR_REPOSITORY` in `app.json` and the Deploy button URL below with the real repository details.
+3. Open the GitHub repository and click the Deploy button.
+4. Set Config Vars:
    - `BOT_TOKEN`: token from `@BotFather`
-   - `ADMIN_IDS`: your numeric Telegram user ID (comma-separated IDs are supported)
-   - `DB_PATH`: leave as `actress_game.db` unless you have a reason to change it
-5. Click **Deploy**. The `worker` process is configured to run one copy of `python bot.py`.
+   - `ADMIN_IDS`: numeric Telegram user ID (comma-separated if multiple)
+   - `DB_PATH`: `actress_game.db`
+5. Deploy. `app.json` requests one worker using Heroku's `eco` dyno size.
+6. If needed, open **Heroku Dashboard → app → Resources**, set worker quantity to `1`, and save.
 
-The app uses a background worker, not a web server. The Procfile must remain:
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://www.heroku.com/deploy/?template=https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY)
 
-```procfile
-worker: python bot.py
-```
-
-If the worker is not started automatically, open the Heroku app's **Resources** tab and enable one `worker` dyno.
+**Important:** The Deploy button remains a template until the GitHub placeholders are replaced. Eco dyno scaling requires an eligible Eco subscription/account. A project file cannot activate or purchase the subscription; Heroku must permit dyno scaling on the account.
 
 ## Run locally
 
-1. Create a bot with **@BotFather** and copy its token.
-2. Copy `.env.example` to `.env`.
-3. Set `BOT_TOKEN` and `ADMIN_IDS` in `.env`.
-4. Install dependencies and start:
-
 ```bash
 python -m venv .venv
-# Windows: .venv\Scripts\activate
 # Linux/macOS: source .venv/bin/activate
+# Windows: .venv\\Scripts\\activate
 pip install -r requirements.txt
-python bot.py
 ```
 
-## Add actress photos
+Copy `.env.example` to `.env`, set `BOT_TOKEN` and `ADMIN_IDS`, then run `python bot.py`.
 
-An admin sends a photo to the bot with this exact caption format:
+## Add question photos
+
+An admin sends a photo with this caption:
 
 ```text
 /add Correct Actress Name | Wrong Option 1 | Wrong Option 2 | Wrong Option 3
 ```
 
-Use images you own, have permission to use, or are otherwise licensed for this use. The bot stores Telegram's photo `file_id`.
+Use images you own, have permission to use, or are licensed to use. The bot stores Telegram's photo `file_id`.
 
 ## Commands
 
 - `/start` — open the game
 - `/stats` — admin-only question and player count
 
-## Important data-storage note
+## Data persistence warning
 
-This starter project stores scores and questions in SQLite. Heroku's local filesystem is ephemeral, so SQLite data may be lost when the dyno restarts, is replaced, or redeployed. For a production deployment where game data must persist, migrate the database to a persistent PostgreSQL service.
-
-## GitHub upload
-
-Upload the project files to a new GitHub repository. Do **not** upload `.env`, bot tokens, or database files.
+The starter bot stores questions and scores in SQLite. Heroku's dyno filesystem is ephemeral, so this data can be lost when the dyno is replaced or redeployed. For persistent production data, migrate to PostgreSQL.
