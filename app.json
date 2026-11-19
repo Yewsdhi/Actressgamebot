@@ -1,27 +1,27 @@
+
 {
   "name": "Actress Photo Guess Bot",
-  "description": "Telegram Bollywood actress photo guessing game with points and leaderboard.",
-  "keywords": [
-    "telegram",
-    "bot",
-    "game",
-    "quiz",
-    "bollywood"
-  ],
+  "description": "Automatic Actress Photo Guess Telegram Bot",
   "repository": "https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY",
+  "keywords": ["telegram", "bot", "actress", "quiz"],
   "env": {
     "BOT_TOKEN": {
-      "description": "Telegram bot token from @BotFather",
+      "description": "Telegram Bot Token",
       "required": true
     },
     "ADMIN_IDS": {
-      "description": "Numeric Telegram user ID; comma-separated IDs are supported.",
+      "description": "Telegram Admin ID",
       "required": true
     },
-    "DB_PATH": {
-      "description": "SQLite database filename; Heroku filesystem is temporary.",
-      "required": true,
-      "value": "actress_game.db"
+    "AUTO_POST_ENABLED": {
+      "value": "true"
+    },
+    "AUTO_POST_INTERVAL_MINUTES": {
+      "value": "15"
+    },
+    "AUTO_POST_CHAT_ID": {
+      "description": "Channel username",
+      "required": false
     }
   },
   "formation": {
